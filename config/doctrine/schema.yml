@@ -1,0 +1,10 @@
+aBlogItem:
+  columns:
+    # Note that thread identifiers can't be unreasonably bloated in
+    # this schema. We think this is a feature. Yes, this can
+    # be null (Apostrophe uses the id when this is not already specified).
+    # It is mostly used for legacy imports of existing threads
+    disqus_thread_identifier: 
+      type: string
+      length: 100
+    
