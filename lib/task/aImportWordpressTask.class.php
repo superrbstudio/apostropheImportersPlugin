@@ -144,7 +144,6 @@ EOM
 ;
     $ourXml = aFiles::getTemporaryFilename();
     file_put_contents($ourXml, $out);
-    file_put_contents('data/test.xml', $out);
     $task = new aBlogImportTask($this->dispatcher, $this->formatter);
     $boptions = array('posts' => $ourXml, 'env' => $options['env'], 'connection' => $options['connection']);
     if (isset($options['authors']))
