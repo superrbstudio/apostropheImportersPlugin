@@ -59,6 +59,13 @@ EOM
       {
         continue;
       }
+      
+      if (((int) $wpXml->post_parent) > 0)
+      {
+        // Just the blog post proper, these never seem to be useful
+        // (we'll feel differently when we get to importing pages)
+        continue;
+      }
       $title = $this->escape($item->title[0]);
       // In our exports pubDate was always wrong (the same value for every item)
       // so post_date was a much more reasonable value
