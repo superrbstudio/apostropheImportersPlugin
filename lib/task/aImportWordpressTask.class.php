@@ -53,6 +53,11 @@ EOM
       $categories = array();
       $dcXml = $item->children('http://purl.org/dc/elements/1.1/');
       $wpXml = $item->children('http://wordpress.org/export/1.0/');
+      if (!count($wpXml))
+      {
+        // newer WP
+        $wpXml = $item->children('http://wordpress.org/export/1.1/');
+      }
       // Skip photo attachments, pages, anything else that isn't a post 
       // (we do pull the photos actually appearing in posts in via apostrophe's import mechanisms)
       if (((string) $wpXml->post_type) !== 'post')
