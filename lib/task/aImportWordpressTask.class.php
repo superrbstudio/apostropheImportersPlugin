@@ -163,7 +163,7 @@ EOM
       $boptions['authors'] = $options['authors'];
     }
     $task->run(array(), $boptions);
-    unlink($ourXml);
+    aFiles::unlink($ourXml);
   }
   
   public function escape($s)
