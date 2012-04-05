@@ -16,6 +16,8 @@ class aImportWordpressTask extends sfBaseTask
       new sfCommandOption('connection', null, sfCommandOption::PARAMETER_REQUIRED, 'The connection name', 'doctrine'),
       new sfCommandOption('xml', null, sfCommandOption::PARAMETER_REQUIRED, 'An XML file created by the Wordpress export feature', null),
       new sfCommandOption('authors', null, sfCommandOption::PARAMETER_REQUIRED, 'An author mapping XML file (see the blog-import task)', null),
+      new sfCommandOption('clear', null, sfCommandOption::PARAMETER_NONE, 'Remove existing posts and/or events', null),
+      new sfCommandOption('ignore-empty-title', null, sfCommandOption::PARAMETER_NONE, 'Ignore all posts and events with empty titles', null),
       new sfCommandOption('disqus', null, sfCommandOption::PARAMETER_NONE, 'Import existing Disqus threads', null)
       // add your own options here
     ));
@@ -40,6 +42,11 @@ EOF;
       exit(1);
     }
     $xml = simplexml_load_file($options['xml']);
+    if (!$xml)
+    {
+      echo("Unable to open or parse XML file\n");
+      exit(0);
+    }
     $channel = $xml->channel[0];
     $out = <<<EOM
 <?xml version="1.0" encoding="UTF-8"?>
@@ -72,6 +79,11 @@ EOM
         continue;
       }
       $title = $this->escape($item->title[0]);
+      if ($options['ignore-empty-title'] && (!strlen($title)))
+      {
+        echo("Ignoring post with empty title\n");
+        continue;
+      }
       // In our exports pubDate was always wrong (the same value for every item)
       // so post_date was a much more reasonable value
       $published_at = $this->escape($wpXml->post_date[0]);
@@ -157,7 +169,7 @@ EOM
     $ourXml = aFiles::getTemporaryFilename();
     file_put_contents($ourXml, $out);
     $task = new aBlogImportTask($this->dispatcher, $this->formatter);
-    $boptions = array('posts' => $ourXml, 'env' => $options['env'], 'connection' => $options['connection']);
+    $boptions = array('posts' => $ourXml, 'env' => $options['env'], 'connection' => $options['connection'], 'clear' => $options['clear']);
     if (isset($options['authors']))
     {
       $boptions['authors'] = $options['authors'];
