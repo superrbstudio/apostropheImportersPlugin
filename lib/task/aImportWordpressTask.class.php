@@ -18,7 +18,8 @@ class aImportWordpressTask extends sfBaseTask
       new sfCommandOption('authors', null, sfCommandOption::PARAMETER_REQUIRED, 'An author mapping XML file (see the blog-import task)', null),
       new sfCommandOption('clear', null, sfCommandOption::PARAMETER_NONE, 'Remove existing posts and/or events', null),
       new sfCommandOption('ignore-empty-title', null, sfCommandOption::PARAMETER_NONE, 'Ignore all posts and events with empty titles', null),
-      new sfCommandOption('disqus', null, sfCommandOption::PARAMETER_NONE, 'Import existing Disqus threads', null)
+      new sfCommandOption('disqus', null, sfCommandOption::PARAMETER_NONE, 'Import existing Disqus threads', null),
+      new sfCommandOption('defaultUsername', null, sfCommandOption::PARAMETER_REQUIRED, 'Default author of posts', 'admin')
       // add your own options here
     ));
 
@@ -173,6 +174,10 @@ EOM
     if (isset($options['authors']))
     {
       $boptions['authors'] = $options['authors'];
+    }
+    if (isset($options['defaultUsername']))
+    {
+      $boptions['defaultUsername'] = $options['defaultUsername'];
     }
     $task->run(array(), $boptions);
     aFiles::unlink($ourXml);
