@@ -20,7 +20,9 @@ class aImportWordpressTask extends sfBaseTask
       new sfCommandOption('ignore-empty-title', null, sfCommandOption::PARAMETER_NONE, 'Ignore all posts and events with empty titles', null),
       new sfCommandOption('disqus', null, sfCommandOption::PARAMETER_NONE, 'Import existing Disqus threads', null),
       new sfCommandOption('defaultUsername', null, sfCommandOption::PARAMETER_REQUIRED, 'Default author of posts', 'admin'),
-      new sfCommandOption('category', null, sfCommandOption::PARAMETER_REQUIRED, 'Category to apply to ALL imported posts', 'admin')
+      new sfCommandOption('category', null, sfCommandOption::PARAMETER_REQUIRED, 'Category to apply to ALL imported posts', 'admin'),
+      new sfCommandOption('categories-as-tags', null, sfCommandOption::PARAMETER_NONE, 'All categories found in the import are treated as tags', null),
+      new sfCommandOption('tag-to-entity', null, sfCommandOption::PARAMETER_NONE, 'Convert tags to entity relationships if an entity by that name exists (applied after categories-as-tags)', null)
       // add your own options here
     ));
 
@@ -119,14 +121,21 @@ EOM
       }
       foreach ($item->category as $category)
       {
-        $domain = (string) $category['domain'];
-        if ($domain === 'tag')
+        if ($options['categories-as-tags'])
         {
           $tags[] = (string) $category;
         }
-        elseif ($domain === 'category')
+        else
         {
-          $categories[] = (string) $category;
+          $domain = (string) $category['domain'];
+          if ($domain === 'tag')
+          {
+            $tags[] = (string) $category;
+          }
+          elseif ($domain === 'category')
+          {
+            $categories[] = (string) $category;
+          }
         }
       }
       // Look for a disqus thread using the standard Wordpress Disqus plugin's
@@ -146,9 +155,11 @@ EOM
     
 EOM
 ;
+      // Since WP category names are CDATA containing already-escaped entities,
+      // don't double-escape them
       foreach ($categories as $category)
       {
-        $out .= "      <category>" . $this->escape($category) . "</category>\n";
+        $out .= "      <category>" . $category . "</category>\n";
       }
       $out .= <<<EOM
     </categories>
@@ -156,9 +167,11 @@ EOM
     
 EOM
 ;
+      // Since WP category names are CDATA containing already-escaped entities,
+      // don't double-escape them
       foreach ($tags as $tag)
       {
-        $out .= "      <tag>" . $this->escape($tag) . "</tag>\n";
+        $out .= "      <tag>" . $tag . "</tag>\n";
       }
       $out .= <<<EOM
     </tags>
@@ -180,7 +193,7 @@ EOM
     $ourXml = aFiles::getTemporaryFilename();
     file_put_contents($ourXml, $out);
     $task = new aBlogImportTask($this->dispatcher, $this->formatter);
-    $boptions = array('posts' => $ourXml, 'env' => $options['env'], 'connection' => $options['connection'], 'clear' => $options['clear']);
+    $boptions = array('posts' => $ourXml, 'env' => $options['env'], 'connection' => $options['connection'], 'clear' => $options['clear'], 'tag-to-entity' => $options['tag-to-entity']);
     if (isset($options['authors']))
     {
       $boptions['authors'] = $options['authors'];
