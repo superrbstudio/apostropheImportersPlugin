@@ -19,7 +19,8 @@ class aImportWordpressTask extends sfBaseTask
       new sfCommandOption('clear', null, sfCommandOption::PARAMETER_NONE, 'Remove existing posts and/or events', null),
       new sfCommandOption('ignore-empty-title', null, sfCommandOption::PARAMETER_NONE, 'Ignore all posts and events with empty titles', null),
       new sfCommandOption('disqus', null, sfCommandOption::PARAMETER_NONE, 'Import existing Disqus threads', null),
-      new sfCommandOption('defaultUsername', null, sfCommandOption::PARAMETER_REQUIRED, 'Default author of posts', 'admin')
+      new sfCommandOption('defaultUsername', null, sfCommandOption::PARAMETER_REQUIRED, 'Default author of posts', 'admin'),
+      new sfCommandOption('category', null, sfCommandOption::PARAMETER_REQUIRED, 'Category to apply to ALL imported posts', 'admin')
       // add your own options here
     ));
 
@@ -59,6 +60,10 @@ EOM
     {
       $tags = array();
       $categories = array();
+      if ($options['category'])
+      {
+        $categories[] = $options['category'];
+      }
       $dcXml = $item->children('http://purl.org/dc/elements/1.1/');
       $wpXml = $item->children('http://wordpress.org/export/1.0/');
       if (!count($wpXml))
