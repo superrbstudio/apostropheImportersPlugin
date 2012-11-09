@@ -119,6 +119,28 @@ EOM
         }
         continue;
       }
+
+      if (isset($wpXml->postmeta)) 
+      {
+        foreach ($wpXml->postmeta as $postmeta)
+        {
+          $key = (string) $postmeta->meta_key;
+          $value = (string) $postmeta->meta_value;
+          if ($key === '_wp_geo_latitude')
+          {
+            $latitude = $value;
+          } elseif ($key === '_wp_geo_longitude')
+          {
+            $longitude = $value;
+          }
+        }
+      }
+
+      if (isset($latitude) && isset($longitude))
+      {
+        $location = $this->escape("$latitude, $longitude");
+      }
+
       foreach ($item->category as $category)
       {
         if ($options['categories-as-tags'])
@@ -151,6 +173,18 @@ EOM
   <post $disqus_thread_identifier_attribute published_at="$published_at" slug="$slug">
     <title>$title</title>
     <author>$author</author>
+
+EOM
+;
+      if (isset($location))
+      {
+        $out .= <<<EOM
+    <location>$location</location>
+
+EOM
+;
+      }
+      $out .= <<<EOM
     <categories>
     
 EOM
@@ -194,7 +228,7 @@ EOM
     file_put_contents($ourXml, $out);
     $task = new aBlogImportTask($this->dispatcher, $this->formatter);
     $boptions = array('posts' => $ourXml, 'env' => $options['env'], 'connection' => $options['connection'], 'clear' => $options['clear'], 'tag-to-entity' => $options['tag-to-entity']);
-    if (isset($options['authors']))
+    if (isset($options['authors'])) 
     {
       $boptions['authors'] = $options['authors'];
     }
@@ -208,7 +242,7 @@ EOM
   
   public function escape($s)
   {
-    // Yes, we really mean it when we double-encode here
+    // Yes, we really mean it if we double-encode here
     return htmlspecialchars((string) $s, ENT_COMPAT, 'UTF-8', true);
   }
 }
