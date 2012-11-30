@@ -22,7 +22,8 @@ class aImportWordpressTask extends sfBaseTask
       new sfCommandOption('defaultUsername', null, sfCommandOption::PARAMETER_REQUIRED, 'Default author of posts', 'admin'),
       new sfCommandOption('category', null, sfCommandOption::PARAMETER_REQUIRED, 'Category to apply to ALL imported posts', 'admin'),
       new sfCommandOption('categories-as-tags', null, sfCommandOption::PARAMETER_NONE, 'All categories found in the import are treated as tags', null),
-      new sfCommandOption('tag-to-entity', null, sfCommandOption::PARAMETER_NONE, 'Convert tags to entity relationships if an entity by that name exists (applied after categories-as-tags)', null)
+      new sfCommandOption('tag-to-entity', null, sfCommandOption::PARAMETER_NONE, 'Convert tags to entity relationships if an entity by that name exists (applied after categories-as-tags)', null),
+      new sfCommandOption('skip-confirmation', null, sfCommandOption::PARAMETER_NONE, 'Skip confirmation prompt', null)
       // add your own options here
     ));
 
@@ -227,7 +228,7 @@ EOM
     $ourXml = aFiles::getTemporaryFilename();
     file_put_contents($ourXml, $out);
     $task = new aBlogImportTask($this->dispatcher, $this->formatter);
-    $boptions = array('posts' => $ourXml, 'env' => $options['env'], 'connection' => $options['connection'], 'clear' => $options['clear'], 'tag-to-entity' => $options['tag-to-entity']);
+    $boptions = array('posts' => $ourXml, 'env' => $options['env'], 'connection' => $options['connection'], 'clear' => $options['clear'], 'tag-to-entity' => $options['tag-to-entity'], 'skip-confirmation' => $options['skip-confirmation']);
     if (isset($options['authors'])) 
     {
       $boptions['authors'] = $options['authors'];
