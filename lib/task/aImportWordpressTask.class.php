@@ -79,6 +79,7 @@ EOM
         // newer WP
         $wpXml = $item->children('http://wordpress.org/export/1.2/');
       }
+
       // Skip photo attachments, pages, anything else that isn't a post 
       // (we do pull the photos actually appearing in posts in via apostrophe's import mechanisms)
       if (((string) $wpXml->post_type) !== 'post')
@@ -105,8 +106,17 @@ EOM
       $status = $this->escape($wpXml->status[0]);
       $link = $this->escape($item->link[0]);
       $author = $this->escape($dcXml->creator[0]);
+
+      $excerpt = null;
+      $excerptXml = $item->children('http://wordpress.org/export/1.1/excerpt/');
+      if (count($excerptXml->encoded))
+      {
+        $excerpt = $this->escape($excerptXml->encoded[0]);
+      }
+
       $contentXml = $item->children('http://purl.org/rss/1.0/modules/content/');
       $body = $this->escape($contentXml->encoded[0]);
+
       // Blank lines = paragraph breaks in Wordpress. This is difficult to translate
       // to Apostrophe cleanly because it's nontrivial to turn them into nice
       // paragraph containers. Go with a double br to get the same effect for now
@@ -211,6 +221,23 @@ EOM
       $out .= <<<EOM
     </tags>
     <Page>
+EOM
+;
+      // We import excerpts as a blog-excerpt slot. If a
+      // particular Apostrophe site doesn't choose to override
+      // _excerptTemplate to actually show that, no big deal.
+      if (isset($excerpt))
+      {
+        $out .= <<<EOM
+      <Area name="blog-excerpt">
+        <Slot type="aRichText">
+          <value>$excerpt</value>
+        </Slot>
+      </Area>
+EOM
+;
+      }
+      $out .= <<<EOM
       <Area name="blog-body">
         <Slot type="foreignHtml">
           <value>$body</value>
