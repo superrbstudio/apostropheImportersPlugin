@@ -20,7 +20,8 @@ class aImportWordpressTask extends sfBaseTask
       new sfCommandOption('ignore-empty-title', null, sfCommandOption::PARAMETER_NONE, 'Ignore all posts and events with empty titles', null),
       new sfCommandOption('disqus', null, sfCommandOption::PARAMETER_NONE, 'Import existing Disqus threads', null),
       new sfCommandOption('defaultUsername', null, sfCommandOption::PARAMETER_REQUIRED, 'Default author of posts', 'admin'),
-      new sfCommandOption('category', null, sfCommandOption::PARAMETER_REQUIRED, 'Category to apply to ALL imported posts', 'admin'),
+      new sfCommandOption('category', null, sfCommandOption::PARAMETER_REQUIRED, 'Category to apply to ALL imported posts', null),
+      new sfCommandOption('tag', null, sfCommandOption::PARAMETER_REQUIRED, 'Tag to apply to ALL imported posts', null),
       new sfCommandOption('categories-as-tags', null, sfCommandOption::PARAMETER_NONE, 'All categories found in the import are treated as tags', null),
       new sfCommandOption('tag-to-entity', null, sfCommandOption::PARAMETER_NONE, 'Convert tags to entity relationships if an entity by that name exists (applied after categories-as-tags)', null),
       new sfCommandOption('skip-confirmation', null, sfCommandOption::PARAMETER_NONE, 'Skip confirmation prompt', null)
@@ -62,6 +63,10 @@ EOM
     foreach ($xml->channel[0]->item as $item)
     {
       $tags = array();
+      if ($options['tag'])
+      {
+        $tags[] = $options['tag'];
+      }
       $categories = array();
       if ($options['category'])
       {
